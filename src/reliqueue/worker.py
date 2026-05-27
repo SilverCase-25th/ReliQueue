@@ -5,6 +5,7 @@ import logging
 import signal
 from collections.abc import Callable
 from contextlib import suppress
+from uuid import UUID
 
 from .config import Settings
 from .db import create_pool, init_db
@@ -88,7 +89,7 @@ class Worker:
             with suppress(asyncio.CancelledError):
                 await heartbeat_task
 
-    async def _heartbeat(self, job_id) -> None:
+    async def _heartbeat(self, job_id: UUID) -> None:
         interval = max(self.lease_seconds / 2, 1)
         while True:
             await asyncio.sleep(interval)

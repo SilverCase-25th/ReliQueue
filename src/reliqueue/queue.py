@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import logging
 import random
 from datetime import UTC, datetime, timedelta
@@ -43,7 +42,7 @@ class ReliQueue:
                     """,
                     job_id,
                     request.job_type,
-                    json.dumps(request.payload),
+                    request.payload,
                     request.idempotency_key,
                     request.max_retries,
                     request.run_at,
@@ -103,7 +102,7 @@ class ReliQueue:
                 LeasedJob(
                     id=row["id"],
                     job_type=row["job_type"],
-                    payload=json.loads(row["payload"]) if isinstance(row["payload"], str) else dict(row["payload"]),
+                    payload=dict(row["payload"]),
                     attempt=row["attempt"],
                     max_retries=row["max_retries"],
                     timeout_seconds=row["timeout_seconds"],
@@ -194,7 +193,7 @@ class ReliQueue:
                         uuid4(),
                         job.id,
                         job.job_type,
-                        json.dumps(job.payload),
+                        job.payload,
                         job.attempt,
                         error,
                     )

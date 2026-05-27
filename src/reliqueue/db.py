@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import asyncpg
@@ -55,7 +56,22 @@ CREATE TABLE IF NOT EXISTS dead_letter_jobs (
 
 
 async def create_pool(database_url: str) -> asyncpg.Pool:
-    return await asyncpg.create_pool(dsn=database_url, min_size=1, max_size=10)
+    return await asyncpg.create_pool(dsn=database_url, min_size=1, max_size=10, init=_init_connection)
+
+
+async def _init_connection(connection: asyncpg.Connection) -> None:
+    await connection.set_type_codec(
+        "json",
+        encoder=json.dumps,
+        decoder=json.loads,
+        schema="pg_catalog",
+    )
+    await connection.set_type_codec(
+        "jsonb",
+        encoder=json.dumps,
+        decoder=json.loads,
+        schema="pg_catalog",
+    )
 
 
 async def init_db(pool: asyncpg.Pool) -> None:
